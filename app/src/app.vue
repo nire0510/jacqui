@@ -91,4 +91,8 @@ form {
   grid-area: main;
   height: calc(100vh - 64px);
 }
+
+.cursor-copy {
+  cursor: copy;
+}
 </style>

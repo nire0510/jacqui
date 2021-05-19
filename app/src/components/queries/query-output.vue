@@ -10,7 +10,7 @@
       <tbody>
         <tr v-for="(row, index) in (output ||[])" :key="index">
           <td>{{index + 1}}</td>
-          <td v-for="(value, index) in row" :key="index">
+          <td v-for="(value, index) in row" :key="index" v-copy>
             {{value}}
           </td>
         </tr>
