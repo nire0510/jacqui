@@ -1,0 +1,921 @@
+[
+  {
+    "group": "Compute",
+    "services": [
+      {
+        "name": "EC2",
+        "queries": [
+          {
+            "title": "Instance ID, name and type",
+            "aws": "ec2 describe-instances",
+            "jq": "[.Reservations[].Instances[] | { InstanceId, InstanceName: (.Tags[] | select(.Key == \"Name\").Value), InstanceType }]"
+          },
+          {
+            "title": "Instance name and public IP address",
+            "aws": "ec2 describe-instances --query 'Reservations[*].Instances[?not_null(PublicIpAddress)]'",
+            "jq": "[.[][] | { InstanceName: (.Tags[] | select(.Key==\"Name\").Value), PublicIpAddress }]"
+          },
+          {
+            "title": "VPC ID, name and CIDR IP block",
+            "aws": "ec2 describe-vpcs",
+            "jq": "[.Vpcs[] | { VpcId, VpcName: (.Tags[] | select(.Key==\"Name\").Value), CidrBlock }]"
+          },
+          {
+            "title": "VPC subnets",
+            "aws": "ec2 describe-subnets --filter Name=vpc-id,Values={{VPC ID}}",
+            "jq": "[.Subnets[] | { SubnetId, CidrBlock, VpcName: (.Tags[]|select(.Key==\"Name\").Value) }]"
+          },
+          {
+            "title": "Security groups",
+            "aws": "ec2 describe-security-groups",
+            "jq": "[.SecurityGroups[] | { GroupId, GroupName }]"
+          },
+          {
+            "title": "Insatnce security groups",
+            "aws": "ec2 describe-instances --instance-ids {{Instance ID}}",
+            "jq": "[.Reservations[].Instances[].SecurityGroups[] | { GroupId, GroupName }]"
+          }
+        ]
+      },
+      {
+        "name": "Lightsail"
+      },
+      {
+        "name": "Lambda",
+        "queries": [
+          {
+            "title": "Lambda functions",
+            "aws": "lambda list-functions",
+            "jq": "[ .Functions[ ] | { FunctionName, Runtime, MemorySize: (.MemorySize|tostring) } ]"
+          },
+          {
+            "title": "Lambda layers",
+            "aws": "lambda list-layers",
+            "jq": "[ .Layers[ ] | { LayerName } ]"
+          },
+          {
+            "title": "Lambda source events",
+            "aws": "lambda list-event-source-mappings",
+            "jq": "[ .EventSourceMappings[ ] | { FunctionArn, EventSourceArn } ]"
+          }
+        ]
+      },
+      {
+        "name": "Batch"
+      },
+      {
+        "name": "Elastic Beanstalk"
+      },
+      {
+        "name": "Serverless Application Repository"
+      },
+      {
+        "name": "AWS Outposts"
+      },
+      {
+        "name": "EC2 Image Builder"
+      }
+    ]
+  },
+  {
+    "group": "Containers",
+    "services": [
+      {
+        "name": "Elastic Container Registry"
+      },
+      {
+        "name": "Elastic Container Service"
+      },
+      {
+        "name": "Elastic Kubernetes Service",
+        "queries": [
+          {
+            "title": "Clusters",
+            "aws": "eks list-clusters",
+            "jq": "[.clusters[] | { Name: .}]"
+          }
+        ]
+      },
+      {
+        "name": "Red Hat OpenShift Service on AWS"
+      }
+    ]
+  },
+  {
+    "group": "Storage",
+    "services": [
+      {
+        "name": "S3"
+      },
+      {
+        "name": "EFS"
+      },
+      {
+        "name": "FSx"
+      },
+      {
+        "name": "S3 Glacier"
+      },
+      {
+        "name": "Storage Gateway"
+      },
+      {
+        "name": "AWS Backup"
+      }
+    ]
+  },
+  {
+    "group": "Database",
+    "services": [
+      {
+        "name": "RDS",
+        "queries": [
+          {
+            "title": "DB clusters",
+            "aws": "rds describe-db-clusters",
+            "jq": "[ .DBClusters[ ] | { DBClusterIdentifier, Endpoint } ]"
+          },
+          {
+            "title": "DB instances",
+            "aws": "rds describe-db-instances",
+            "jq": "[ .DBInstances[ ] | { DBInstanceIdentifier, DBInstanceClass, Address: .Endpoint.Address} ]"
+          }
+        ]
+      },
+      {
+        "name": "DynamoDB",
+        "queries": [
+          {
+            "title": "DynamoDB tables",
+            "aws": "dynamodb list-tables",
+            "jq": "[.TableNames[]]"
+          },
+          {
+            "title": "Table items",
+            "aws": "dynamodb scan --table-name {{Table Name}}",
+            "jq": null
+          },
+          {
+            "title": "Table items count",
+            "aws": "dynamodb scan --table-name {{Table Name}} --select count",
+            "jq": "[{ Count: .ScannedCount}]"
+          }
+        ]
+      },
+      {
+        "name": "ElastiCache",
+        "queries": [
+          {
+            "title": "Cache clusters information",
+            "aws": "elasticache describe-cache-clusters",
+            "jq": "[ .CacheClusters[] | { CacheNodeType, CacheClusterId } ]"
+          },
+          {
+            "title": "Snapshots",
+            "aws": "elasticache describe-snapshots",
+            "jq": "[ .Snapshots[ ] | { SnapshotName } ]"
+          }
+        ]
+      },
+      {
+        "name": "Neptune"
+      },
+      {
+        "name": "Amazon QLDB"
+      },
+      {
+        "name": "Amazon DocumentDB"
+      },
+      {
+        "name": "Amazon Keyspaces"
+      },
+      {
+        "name": "Amazon Timestream"
+      }
+    ]
+  },
+  {
+    "group": "Migration & Transfer",
+    "services": [
+      {
+        "name": "AWS Migration Hub"
+      },
+      {
+        "name": "AWS Application Migration Service"
+      },
+      {
+        "name": "Application Discovery Service"
+      },
+      {
+        "name": "Database Migration Service"
+      },
+      {
+        "name": "Server Migration Service"
+      },
+      {
+        "name": "AWS Transfer Family"
+      },
+      {
+        "name": "AWS Snow Family"
+      },
+      {
+        "name": "DataSync"
+      }
+    ]
+  },
+  {
+    "group": "Networking & Content Delivery",
+    "services": [
+      {
+        "name": "VPC"
+      },
+      {
+        "name": "CloudFront",
+        "queries": [
+          {
+            "title": "CloudFront distributions and origins",
+            "aws": "cloudfront list-distributions",
+            "jq": "[ .DistributionList.Items[ ] | { DomainName, DomainName: .Origins.Items[0].DomainName } ]"
+          }
+        ]
+      },
+      {
+        "name": "Route 53",
+        "queries": [
+          {
+            "title": "Hosted zones",
+            "aws": "route53 list-hosted-zones",
+            "jq": "[ .HostedZones[ ] | { Id, Name } ]"
+          },
+          {
+            "title": "Hosted zone information",
+            "aws": "route53 get-hosted-zone --id {{Zone ID}}",
+            "jq": "[ .HostedZones[ ] | { Id, Name } ]"
+          }
+        ]
+      },
+      {
+        "name": "API Gateway",
+        "queries": [
+          {
+            "title": "API Gateway ID and Name",
+            "aws": "apigateway get-rest-apis",
+            "jq": "[.items[] | { id, name }]"
+          },
+          {
+            "title": "API Gateway keys",
+            "aws": "apigateway get-api-keys",
+            "jq": "[ .items[ ] | { id, name } ]"
+          },
+          {
+            "title": "API Gateway domain names",
+            "aws": "apigateway get-domain-names",
+            "jq": "[ .items[ ] | { domainName, regionalDomainName } ]"
+          },
+          {
+            "title": "API Gateway resources",
+            "aws": "apigateway get-resources --rest-api-id {{REST API ID}}",
+            "jq": "[ .items[ ] | { id, path } ]"
+          },
+          {
+            "title": "Find Lambda for API Gateway resource",
+            "aws": "apigateway get-integration --rest-api-id {{REST API ID}} --resource-id {{Resource ID}} --http-method {{HTTP Method}}",
+            "jq": "[ { uri } ]"
+          }
+        ]
+      },
+      {
+        "name": "Direct Connect"
+      },
+      {
+        "name": "AWS App Mesh"
+      },
+      {
+        "name": "AWS Cloud Map"
+      },
+      {
+        "name": "Global Accelerator"
+      }
+    ]
+  },
+  {
+    "group": "Developer Tools",
+    "services": [
+      {
+        "name": "CodeStar"
+      },
+      {
+        "name": "CodeCommit"
+      },
+      {
+        "name": "CodeArtifact"
+      },
+      {
+        "name": "CodeBuild"
+      },
+      {
+        "name": "CodeDeploy"
+      },
+      {
+        "name": "CodePipeline"
+      },
+      {
+        "name": "Cloud9"
+      },
+      {
+        "name": "CloudShell"
+      },
+      {
+        "name": "X-Ray"
+      },
+      {
+        "name": "AWS FIS"
+      }
+    ]
+  },
+  {
+    "group": "Customer Enablement",
+    "services": [
+      {
+        "name": "AWS IQ"
+      },
+      {
+        "name": "Support"
+      },
+      {
+        "name": "Managed Services"
+      },
+      {
+        "name": "Activate for Startups"
+      }
+    ]
+  },
+  {
+    "group": "Robotics",
+    "services": [
+      {
+        "name": "AWS RoboMaker"
+      }
+    ]
+  },
+  {
+    "group": "Blockchain",
+    "services": [
+      {
+        "name": "Amazon Managed Blockchain"
+      }
+    ]
+  },
+  {
+    "group": "Satellite",
+    "services": [
+      {
+        "name": "Ground Station"
+      }
+    ]
+  },
+  {
+    "group": "Quantum Technologies",
+    "services": [
+      {
+        "name": "Amazon Braket"
+      }
+    ]
+  },
+  {
+    "group": "Management & Governance",
+    "services": [
+      {
+        "name": "AWS Organizations"
+      },
+      {
+        "name": "CloudWatch",
+        "queries": [
+          {
+            "title": "List information about an alarm",
+            "aws": "cloudwatch describe-alarms",
+            "jq": "[ .MetricAlarms[ ] | { AlarmName, Namespace, StateValue } ]"
+          }
+        ]
+      },
+      {
+        "name": "AWS Auto Scaling"
+      },
+      {
+        "name": "CloudFormation"
+      },
+      {
+        "name": "CloudTrail"
+      },
+      {
+        "name": "Config"
+      },
+      {
+        "name": "OpsWorks"
+      },
+      {
+        "name": "Service Catalog"
+      },
+      {
+        "name": "Systems Manager"
+      },
+      {
+        "name": "AWS AppConfig"
+      },
+      {
+        "name": "Trusted Advisor"
+      },
+      {
+        "name": "Control Tower"
+      },
+      {
+        "name": "AWS License Manager"
+      },
+      {
+        "name": "AWS Well-Architected Tool"
+      },
+      {
+        "name": "Personal Health Dashboard"
+      },
+      {
+        "name": "AWS Chatbot"
+      },
+      {
+        "name": "Launch Wizard"
+      },
+      {
+        "name": "AWS Compute Optimizer"
+      },
+      {
+        "name": "Resource Groups & Tag Editor"
+      },
+      {
+        "name": "Amazon Grafana"
+      },
+      {
+        "name": "Amazon Prometheus"
+      },
+      {
+        "name": "AWS Proton"
+      }
+    ]
+  },
+  {
+    "group": "Media Services",
+    "services": [
+      {
+        "name": "Kinesis Video Streams"
+      },
+      {
+        "name": "MediaConnect"
+      },
+      {
+        "name": "MediaConvert"
+      },
+      {
+        "name": "MediaLive"
+      },
+      {
+        "name": "MediaPackage"
+      },
+      {
+        "name": "MediaStore"
+      },
+      {
+        "name": "MediaTailor"
+      },
+      {
+        "name": "Elemental Appliances & Software"
+      },
+      {
+        "name": "Amazon Interactive Video Service"
+      },
+      {
+        "name": "Elastic Transcoder"
+      }
+    ]
+  },
+  {
+    "group": "Machine Learning",
+    "services": [
+      {
+        "name": "Amazon SageMaker"
+      },
+      {
+        "name": "Amazon Augmented AI"
+      },
+      {
+        "name": "Amazon CodeGuru"
+      },
+      {
+        "name": "Amazon DevOps Guru"
+      },
+      {
+        "name": "Amazon Comprehend"
+      },
+      {
+        "name": "Amazon Forecast"
+      },
+      {
+        "name": "Amazon Fraud Detector"
+      },
+      {
+        "name": "Amazon Kendra"
+      },
+      {
+        "name": "Amazon Lex"
+      },
+      {
+        "name": "Amazon Personalize"
+      },
+      {
+        "name": "Amazon Polly"
+      },
+      {
+        "name": "Amazon Rekognition"
+      },
+      {
+        "name": "Amazon Textract"
+      },
+      {
+        "name": "Amazon Transcribe"
+      },
+      {
+        "name": "Amazon Translate"
+      },
+      {
+        "name": "AWS DeepComposer"
+      },
+      {
+        "name": "AWS DeepLens"
+      },
+      {
+        "name": "AWS DeepRacer"
+      },
+      {
+        "name": "AWS Panorama"
+      },
+      {
+        "name": "Amazon Monitron"
+      },
+      {
+        "name": "Amazon HealthLake"
+      },
+      {
+        "name": "Amazon Lookout for Vision"
+      },
+      {
+        "name": "Amazon Lookout for Equipment"
+      },
+      {
+        "name": "Amazon Lookout for Metrics"
+      }
+    ]
+  },
+  {
+    "group": "Analytics",
+    "services": [
+      {
+        "name": "Athena"
+      },
+      {
+        "name": "Amazon Redshift"
+      },
+      {
+        "name": "EMR"
+      },
+      {
+        "name": "CloudSearch"
+      },
+      {
+        "name": "Elasticsearch Service"
+      },
+      {
+        "name": "Kinesis"
+      },
+      {
+        "name": "QuickSight"
+      },
+      {
+        "name": "Data Pipeline"
+      },
+      {
+        "name": "AWS Data Exchange"
+      },
+      {
+        "name": "AWS Glue"
+      },
+      {
+        "name": "AWS Lake Formation"
+      },
+      {
+        "name": "MSK"
+      },
+      {
+        "name": "AWS Glue DataBrew"
+      }
+    ]
+  },
+  {
+    "group": "Security, Identity, & Compliance",
+    "services": [
+      {
+        "name": "IAM",
+        "queries": [
+          {
+            "title": "Groups",
+            "aws": "iam list-groups",
+            "jq": "[ .Groups[ ] | { GroupName } ]"
+          },
+          {
+            "title": "Policies and ARNs",
+            "aws": "iam list-policies",
+            "jq": "[ .Policies[ ] | { PolicyName, Arn } ]"
+          },
+          {
+            "title": "Policy entities",
+            "aws": "iam list-entities-for-policy --policy-arn {{Policy ARN}}",
+            "jq": "[ .[ ] | { PolicyName: . } ]"
+          },
+          {
+            "title": "Group policies",
+            "aws": "iam list-attached-group-policies --group-name {{Group Name}}",
+            "jq": "[ .[ ] | { PolicyName: . } ]"
+          },
+          {
+            "title": "Group users",
+            "aws": "iam get-group --group-name {{Group Name}}",
+            "jq": "[ .[ ] | { UserName: . } ]"
+          },
+          {
+            "title": "User groups",
+            "aws": "iam list-groups-for-user --user-name {{Username}}",
+            "jq": "[ .[ ] | { GroupName: . } ]"
+          },
+          {
+            "title": "All users",
+            "aws": "iam list-users",
+            "jq": "[ .Users[ ] | { UserId, UserName } ]"
+          },
+          {
+            "title": "User access keys",
+            "aws": "aws iam list-access-keys --user-name {{Username}}",
+            "jq": "[ .AccessKeyMetadata[ ] | { AccessKeyId } ]"
+          }
+        ]
+      },
+      {
+        "name": "Resource Access Manager"
+      },
+      {
+        "name": "Cognito",
+        "queries": [
+          {
+            "title": "User Pool IDs and names",
+            "aws": "cognito-idp list-user-pools --max-results 50",
+            "jq": "[.UserPools[] | { Id, Name }]"
+          },
+          {
+            "title": "Users' phone numbers and email addresses",
+            "aws": "cognito-idp list-users --user-pool-id {{Resource ID}}",
+            "jq": "[.Users[].Attributes | from_entries | { sub, phone_number, email }]"
+          }
+        ]
+      },
+      {
+        "name": "Secrets Manager"
+      },
+      {
+        "name": "GuardDuty"
+      },
+      {
+        "name": "Inspector"
+      },
+      {
+        "name": "Amazon Macie"
+      },
+      {
+        "name": "AWS Single Sign-On"
+      },
+      {
+        "name": "Certificate Manager"
+      },
+      {
+        "name": "Key Management Service"
+      },
+      {
+        "name": "CloudHSM"
+      },
+      {
+        "name": "Directory Service"
+      },
+      {
+        "name": "WAF & Shield"
+      },
+      {
+        "name": "AWS Firewall Manager"
+      },
+      {
+        "name": "Artifact"
+      },
+      {
+        "name": "Security Hub"
+      },
+      {
+        "name": "Detective"
+      },
+      {
+        "name": "AWS Audit Manager"
+      },
+      {
+        "name": "AWS Signer"
+      },
+      {
+        "name": "AWS Network Firewall"
+      }
+    ]
+  },
+  {
+    "group": "AWS Cost Management",
+    "services": [
+      {
+        "name": "AWS Cost Explorer"
+      },
+      {
+        "name": "AWS Budgets"
+      },
+      {
+        "name": "AWS Marketplace Subscriptions"
+      }
+    ]
+  },
+  {
+    "group": "Front-end Web & Mobile",
+    "services": [
+      {
+        "name": "AWS Amplify",
+        "queries": [
+          {
+            "title": "List Amplify apps and source repository",
+            "aws": "amplify list-apps",
+            "jq": "[ .apps[ ] | { name, defaultDomain } ]"
+          }
+        ]
+      },
+      {
+        "name": "Mobile Hub"
+      },
+      {
+        "name": "AWS AppSync"
+      },
+      {
+        "name": "Device Farm"
+      },
+      {
+        "name": "Amazon Location Service"
+      }
+    ]
+  },
+  {
+    "group": "AR & VR",
+    "services": [
+      {
+        "name": "Amazon Sumerian"
+      }
+    ]
+  },
+  {
+    "group": "Application Integration",
+    "services": [
+      {
+        "name": "Step Functions"
+      },
+      {
+        "name": "Amazon AppFlow"
+      },
+      {
+        "name": "Amazon EventBridge"
+      },
+      {
+        "name": "Amazon MQ"
+      },
+      {
+        "name": "Simple Notification Service",
+        "queries": [
+          {
+            "title": "Topics",
+            "aws": "sns list-topics",
+            "jq": "[ .Topics[ ] | { TopicArn } ]"
+          },
+          {
+            "title": "Topics and related subscriptions",
+            "aws": "sns list-subscriptions",
+            "jq": "[ .Subscriptions[ ] | { TopicArn, Protocol, Endpoint} ]"
+          }
+        ]
+      },
+      {
+        "name": "Simple Queue Service",
+        "queries": [
+          {
+            "title": "Queues",
+            "aws": "sqs list-queues",
+            "jq": "[ .QueueUrls[ ] | { Name: . } ]"
+          }
+        ]
+      },
+      {
+        "name": "SWF"
+      },
+      {
+        "name": "Managed Apache Airflow"
+      }
+    ]
+  },
+  {
+    "group": "Business Applications",
+    "services": [
+      {
+        "name": "Amazon Connect"
+      },
+      {
+        "name": "Amazon Pinpoint"
+      },
+      {
+        "name": "Amazon Honeycode"
+      },
+      {
+        "name": "Amazon Chime"
+      },
+      {
+        "name": "Amazon Simple Email Service"
+      },
+      {
+        "name": "Amazon WorkDocs"
+      },
+      {
+        "name": "Amazon WorkMail"
+      },
+      {
+        "name": "Alexa for Business"
+      }
+    ]
+  },
+  {
+    "group": "End User Computing",
+    "services": [
+      {
+        "name": "WorkSpaces"
+      },
+      {
+        "name": "AppStream 2.0"
+      },
+      {
+        "name": "WorkLink"
+      }
+    ]
+  },
+  {
+    "group": "Internet of Things",
+    "services": [
+      {
+        "name": "IoT Core"
+      },
+      {
+        "name": "FreeRTOS"
+      },
+      {
+        "name": "IoT 1-Click"
+      },
+      {
+        "name": "IoT Analytics"
+      },
+      {
+        "name": "IoT Device Defender"
+      },
+      {
+        "name": "IoT Device Management"
+      },
+      {
+        "name": "IoT Events"
+      },
+      {
+        "name": "IoT Greengrass"
+      },
+      {
+        "name": "IoT SiteWise"
+      },
+      {
+        "name": "IoT Things Graph"
+      }
+    ]
+  },
+  {
+    "group": "Game Development",
+    "services": [
+      {
+        "name": "Amazon GameLift"
+      }
+    ]
+  }
+]
